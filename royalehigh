@@ -424,7 +424,7 @@ createLoadingScreen()
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (HUMANIZED BYPASS)
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE - NO RANDOM GUESS)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
@@ -465,8 +465,7 @@ if getgenv().Config.AutoCaptcha then
             ["6a3723b695d9e6900f8fcc9106b64008"] = "13",
             ["af300da49b235a2ea90d62f17fcfe8c7"] = "14",
             ["fd6700a486a6ced004db4d1d5eb8e098"] = "15",
-            -- BAGO: Ito yung new blank/unfiltered image na sinend mo. Awtomatiko itong pipindot sa Button 1 para mag-reset.
-            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "1"
+            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "1" -- Yung blank/unfiltered na binigay mo
         }
 
         local function getTargetId()
@@ -545,15 +544,14 @@ if getgenv().Config.AutoCaptcha then
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
                         task.wait(waitTime)
                         clickButton(correctButton)
+                        lastSolvedId = targetId
                     else
-                        -- BAGO: Kung walang match sa hash list, pipindot ng random para ma-force refresh yung captcha
-                        warn("[Auto-Captcha] ⚠️ Hindi kilala ang captcha image. Pipindot ng random button para mag-refresh.")
+                        -- TINANGGAL: Yung random clicker. Imbes na hulaan, hihinto na lang siya para hindi mabawasan ang attempts.
+                        warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Hindi pipindot para iwas 0 attempts.")
                         task.wait(waitTime)
-                        local randomButton = tostring(math.random(1, 15))
-                        clickButton(randomButton)
+                        -- Hindi natin ise-set ang lastSolvedId dito para i-check niya ulit kung nag-iba ang captcha manual
                     end
 
-                    lastSolvedId = targetId
                     task.wait(SETTINGS.COOLDOWN_DELAY)
                     isSolving = false
                 end
