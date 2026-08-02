@@ -44,15 +44,15 @@ if getgenv().Config.AutoArtClass then
             loadingScreen.IgnoreGuiInset = true
             loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-            -- Logo setup (Top center, medyo bumaba ng onti = 0.15 or 15% down)
+            -- Logo setup
             local logo = Instance.new("ImageLabel")
             logo.Parent = loadingScreen
             logo.AnchorPoint = Vector2.new(0.5, 0)
             logo.Position = UDim2.new(0.5, 0, 0.15, 0)
             logo.Size = UDim2.new(0, 150, 0, 150)
             logo.BackgroundTransparency = 1
-            logo.Image = "rbxthumb://type=Asset&id=140611556116986&w=150&h=150"
-            logo.ImageTransparency = 1 
+            logo.Image = "rbxassetid://140611556116986"
+            logo.ImageTransparency = 1
 
             -- Jadey Text setup
             local textLabel = Instance.new("TextLabel")
