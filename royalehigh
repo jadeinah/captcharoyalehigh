@@ -464,7 +464,9 @@ if getgenv().Config.AutoCaptcha then
             ["988d2aba9e47d6cafced32dbac0256ab"] = "12",
             ["6a3723b695d9e6900f8fcc9106b64008"] = "13",
             ["af300da49b235a2ea90d62f17fcfe8c7"] = "14",
-            ["fd6700a486a6ced004db4d1d5eb8e098"] = "15"
+            ["fd6700a486a6ced004db4d1d5eb8e098"] = "15",
+            -- BAGO: Ito yung new blank/unfiltered image na sinend mo. Awtomatiko itong pipindot sa Button 1 para mag-reset.
+            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "1"
         }
 
         local function getTargetId()
@@ -499,7 +501,6 @@ if getgenv().Config.AutoCaptcha then
             return nil
         end
 
-        -- BINAGO: Humanized Clicking System
         local function clickButton(buttonNum)
             local buttonPath = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
             if buttonPath and buttonPath:FindFirstChild("CaptchaGame") then
@@ -507,14 +508,13 @@ if getgenv().Config.AutoCaptcha then
                 if btn then
                     print("[Auto-Captcha] ✅ Pinindot ang Button " .. buttonNum .. " (Humanized)")
                     
-                    -- Gayahin ang totoong mouse click
                     local inset = GuiService:GetGuiInset()
                     local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
                     local targetX = pos.X
                     local targetY = pos.Y + inset.Y
                     
                     VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, true, game, 1)
-                    task.wait(math.random(10, 25) / 100) -- Random hold duration (0.1s to 0.25s) parang tao
+                    task.wait(math.random(10, 25) / 100)
                     VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, false, game, 1)
                 end
             end
@@ -539,19 +539,21 @@ if getgenv().Config.AutoCaptcha then
                     print("[Auto-Captcha] 🔍 Captcha found! ID: " .. targetId)
                     
                     local correctButton = getButtonFromAPI(targetId)
+                    local waitTime = SETTINGS.GET_REACTION()
 
                     if correctButton then
-                        local waitTime = SETTINGS.GET_REACTION()
-                        
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
                         task.wait(waitTime)
-                        
                         clickButton(correctButton)
-                        lastSolvedId = targetId
                     else
-                        warn("[Auto-Captcha] ⚠️ Hindi kilala ang captcha image.")
+                        -- BAGO: Kung walang match sa hash list, pipindot ng random para ma-force refresh yung captcha
+                        warn("[Auto-Captcha] ⚠️ Hindi kilala ang captcha image. Pipindot ng random button para mag-refresh.")
+                        task.wait(waitTime)
+                        local randomButton = tostring(math.random(1, 15))
+                        clickButton(randomButton)
                     end
 
+                    lastSolvedId = targetId
                     task.wait(SETTINGS.COOLDOWN_DELAY)
                     isSolving = false
                 end
@@ -562,7 +564,7 @@ if getgenv().Config.AutoCaptcha then
             end
         end)
         
-        -- BINAGO: Safer ANTI-AFK SCRIPT (Spacebar Jump imbes na VirtualUser Click)
+        -- Safer ANTI-AFK SCRIPT (Spacebar Jump imbes na VirtualUser Click)
         LocalPlayer.Idled:Connect(function()
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
             task.wait(0.1)
