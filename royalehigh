@@ -435,13 +435,14 @@ if getgenv().Config.AutoArtClass then
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (HUMANIZED BYPASS)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
         local Players = game:GetService("Players")
         local HttpService = game:GetService("HttpService")
-        local VirtualUser = game:GetService("VirtualUser")
+        local VirtualInputManager = game:GetService("VirtualInputManager")
+        local GuiService = game:GetService("GuiService")
         local LocalPlayer = Players.LocalPlayer
 
         -- ==============================================================
@@ -455,14 +456,6 @@ if getgenv().Config.AutoCaptcha then
             SETTINGS.WATCH_INTERVAL = 0.5   
             SETTINGS.GET_REACTION = function() return math.random(150, 350) / 100 end 
             SETTINGS.COOLDOWN_DELAY = 2.5   
-        elseif MODE == "SAFE" then
-            SETTINGS.WATCH_INTERVAL = 0.3
-            SETTINGS.GET_REACTION = function() return math.random(35, 75) / 100 end 
-            SETTINGS.COOLDOWN_DELAY = 1.2
-        elseif MODE == "FAST" then
-            SETTINGS.WATCH_INTERVAL = 0.1   
-            SETTINGS.REACTION_DELAY = 0.05  
-            SETTINGS.COOLDOWN_DELAY = 0.8   
         end
 
         local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request or HttpPost
@@ -517,17 +510,23 @@ if getgenv().Config.AutoCaptcha then
             return nil
         end
 
+        -- BINAGO: Humanized Clicking System
         local function clickButton(buttonNum)
             local buttonPath = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
             if buttonPath and buttonPath:FindFirstChild("CaptchaGame") then
                 local btn = buttonPath.CaptchaGame.Bottom.Buttons:FindFirstChild(tostring(buttonNum))
                 if btn then
-                    print("[Auto-Captcha] ✅ Pinindot ang Button " .. buttonNum)
-                    if getconnections then
-                        for _, connection in pairs(getconnections(btn.MouseButton1Click)) do
-                            connection:Fire()
-                        end
-                    end
+                    print("[Auto-Captcha] ✅ Pinindot ang Button " .. buttonNum .. " (Humanized)")
+                    
+                    -- Gayahin ang totoong mouse click
+                    local inset = GuiService:GetGuiInset()
+                    local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
+                    local targetX = pos.X
+                    local targetY = pos.Y + inset.Y
+                    
+                    VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, true, game, 1)
+                    task.wait(math.random(10, 25) / 100) -- Random hold duration (0.1s to 0.25s) parang tao
+                    VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, false, game, 1)
                 end
             end
         end
@@ -553,7 +552,7 @@ if getgenv().Config.AutoCaptcha then
                     local correctButton = getButtonFromAPI(targetId)
 
                     if correctButton then
-                        local waitTime = (MODE == "FAST") and SETTINGS.REACTION_DELAY or SETTINGS.GET_REACTION()
+                        local waitTime = SETTINGS.GET_REACTION()
                         
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
                         task.wait(waitTime)
@@ -574,10 +573,11 @@ if getgenv().Config.AutoCaptcha then
             end
         end)
         
-        -- ANTI-AFK SCRIPT
+        -- BINAGO: Safer ANTI-AFK SCRIPT (Spacebar Jump imbes na VirtualUser Click)
         LocalPlayer.Idled:Connect(function()
-            VirtualUser:CaptureController()
-            VirtualUser:ClickButton2(Vector2.new())
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+            task.wait(0.1)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
         end)
     end)
 end
