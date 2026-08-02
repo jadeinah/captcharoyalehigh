@@ -1,5 +1,5 @@
 -- ==========================================
--- 🎨 SCRIPT 1: ART CLASS - SMART UNIFIED BOT
+-- 🎨 SCRIPT 1: ART CLASS - SMART UNIFIED BOT (ANTI-SPAM FIXED)
 -- ==========================================
 if getgenv().Config.AutoArtClass then
     task.spawn(function()
@@ -13,13 +13,9 @@ if getgenv().Config.AutoArtClass then
         -- 📁 FOLDER CREATION & FILE PATH
         -- ==========================================
         local FOLDER_NAME = "ARTCLASSJADEY"
-
-        -- Gagawa ng folder kung wala pa ito
         if makefolder and not isfolder(FOLDER_NAME) then
             makefolder(FOLDER_NAME)
         end
-
-        -- Ise-save na sa loob ng folder ang txt file
         local FILENAME = FOLDER_NAME .. "/ArtClass_" .. SERVER_ID .. ".txt"
 
         -- SERVICES
@@ -31,59 +27,52 @@ if getgenv().Config.AutoArtClass then
         local TweenService = game:GetService("TweenService")
         local CoreGui = game:GetService("CoreGui")
 
--- ==========================================
--- 🎨 LOADING SCREEN (JADEY) - PERMANENT STAY
--- ==========================================
-local function createLoadingScreen()
-    -- Alisin muna kung meron nang naunang loader para hindi mag-double
-    local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
-    if parentGui:FindFirstChild("JadeyLoader") then
-        parentGui.JadeyLoader:Destroy()
-    end
-    
-    local loadingScreen = Instance.new("ScreenGui")
-    loadingScreen.Name = "JadeyLoader"
-    loadingScreen.Parent = parentGui
-    loadingScreen.IgnoreGuiInset = true
-    loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    loadingScreen.ResetOnSpawn = false
-    
-    -- 🌟 ITO ANG FIX: I-force sa pinaka-ibabaw para hindi matabunan ng game UI
-    loadingScreen.DisplayOrder = 999999 
+        -- ==========================================
+        -- 🎨 LOADING SCREEN (JADEY) - PERMANENT STAY
+        -- ==========================================
+        local function createLoadingScreen()
+            local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
+            if parentGui:FindFirstChild("JadeyLoader") then
+                parentGui.JadeyLoader:Destroy()
+            end
+            
+            local loadingScreen = Instance.new("ScreenGui")
+            loadingScreen.Name = "JadeyLoader"
+            loadingScreen.Parent = parentGui
+            loadingScreen.IgnoreGuiInset = true
+            loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            loadingScreen.ResetOnSpawn = false
+            loadingScreen.DisplayOrder = 999999 -- Nasa pinaka-ibabaw
 
-    -- Logo setup
-    local logo = Instance.new("ImageLabel")
-    logo.Parent = loadingScreen
-    logo.AnchorPoint = Vector2.new(0.5, 0)
-    logo.Position = UDim2.new(0.5, 0, 0.15, 0)
-    logo.Size = UDim2.new(0, 150, 0, 150)
-    logo.BackgroundTransparency = 1
-    logo.Image = "rbxassetid://140611556116986"
-    logo.ImageTransparency = 0
+            local logo = Instance.new("ImageLabel")
+            logo.Parent = loadingScreen
+            logo.AnchorPoint = Vector2.new(0.5, 0)
+            logo.Position = UDim2.new(0.5, 0, 0.15, 0)
+            logo.Size = UDim2.new(0, 150, 0, 150)
+            logo.BackgroundTransparency = 1
+            logo.Image = "rbxassetid://140611556116986"
+            logo.ImageTransparency = 0
 
-    -- Jadey Text setup
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Parent = logo
-    textLabel.AnchorPoint = Vector2.new(0.5, 0)
-    textLabel.Position = UDim2.new(0.5, 0, 1, 15)
-    textLabel.Size = UDim2.new(0, 200, 0, 50)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = "Jadey😴"
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.TextScaled = true
-    textLabel.Font = Enum.Font.GothamBold
-    textLabel.TextTransparency = 0  
-    textLabel.TextStrokeTransparency = 0
-    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-end
-
-createLoadingScreen()
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Parent = logo
+            textLabel.AnchorPoint = Vector2.new(0.5, 0)
+            textLabel.Position = UDim2.new(0.5, 0, 1, 15)
+            textLabel.Size = UDim2.new(0, 200, 0, 50)
+            textLabel.BackgroundTransparency = 1
+            textLabel.Text = "Jadey😴"
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextScaled = true
+            textLabel.Font = Enum.Font.GothamBold
+            textLabel.TextTransparency = 0  
+            textLabel.TextStrokeTransparency = 0
+            textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        end
+        createLoadingScreen()
 
         -- ==========================================
         -- ⚙️ MAIN BOT SCRIPT VARIABLES
         -- ==========================================
         local httpReq = (syn and syn.request) or (http and http.request) or http_request or fluxus or request
-
         local LocalPlayer = Players.LocalPlayer
         local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
         local artClassGui = PlayerGui:WaitForChild("ArtClass")
@@ -98,12 +87,21 @@ createLoadingScreen()
         local lastSentWord = ""
         local lastTypedWord = ""
         local isDrawing = false
+        local currentGuessId = 0 -- 🌟 BAGO: Para hindi mag-double guess
 
         print("🤖 [SMART BOT] Ready! Naka-link sa server file: " .. FILENAME)
 
         -- ==========================================
         -- 🚀 HELPER FUNCTIONS
         -- ==========================================
+        -- 🌟 BAGO: Safe Text Cleaner (Tatanggalin ang newlines at extra spaces)
+        local function cleanWord(str)
+            local s = string.gsub(str, "Your Drawing Subject:", "")
+            s = string.gsub(s, "[\n\r]", "") -- Remove invisible enters
+            s = string.match(s, "^%s*(.-)%s*$") -- Trim extra spaces
+            return s
+        end
+
         local function clickButton(button, yOffset)
             if firesignal then
                 pcall(function() firesignal(button.MouseButton1Click) end)
@@ -151,18 +149,13 @@ createLoadingScreen()
         end
 
         -- ==========================================
-        -- ✍️ HUMANIZED TEXT WRITING ENGINE
+        -- ✍️ HUMANIZED TEXT WRITING ENGINE (A-Z)
         -- ==========================================
         local function drawLine(startX, startY, endX, endY)
             local distance = math.sqrt((endX - startX)^2 + (endY - startY)^2)
             local steps = math.clamp(math.floor(distance / 4), 6, 25)
 
-            startX = startX + math.random(-2, 2)
-            startY = startY + math.random(-2, 2)
-            endX = endX + math.random(-3, 3)
-            endY = endY + math.random(-3, 3)
-
-            VirtualInputManager:SendMouseMoveEvent(startX, startY, game)
+            VirtualInputManager:SendMouseMoveEvent(startX + math.random(-2,2), startY + math.random(-2,2), game)
             task.wait(math.random(2, 5) / 100) 
             VirtualInputManager:SendMouseButtonEvent(startX, startY, 0, true, game, 1)
             task.wait(math.random(1, 3) / 100)
@@ -171,139 +164,43 @@ createLoadingScreen()
                 local t = i / steps
                 local currentX = startX + ((endX - startX) * t)
                 local currentY = startY + ((endY - startY) * t)
-                
                 local wobble = math.sin(t * math.pi) * math.random(-2, 2)
-                currentX = currentX + wobble + math.random(-1, 1)
-                currentY = currentY + wobble + math.random(-1, 1)
-
-                VirtualInputManager:SendMouseMoveEvent(currentX, currentY, game)
+                VirtualInputManager:SendMouseMoveEvent(currentX + wobble, currentY + wobble, game)
                 task.wait(math.random(1, 4) / 100)
             end
-
             VirtualInputManager:SendMouseButtonEvent(endX, endY, 0, false, game, 1)
             task.wait(math.random(6, 15) / 100) 
         end
 
         local function drawChar(char, x, y, size)
             char = string.upper(char)
-            if char == "A" then
-                drawLine(x, y + size, x + size/2, y)
-                drawLine(x + size/2, y, x + size, y + size)
-                drawLine(x + size*0.25, y + size*0.5, x + size*0.75, y + size*0.5)
-            elseif char == "B" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size*0.8, y + size*0.25)
-                drawLine(x + size*0.8, y + size*0.25, x, y + size*0.5)
-                drawLine(x, y + size*0.5, x + size*0.8, y + size*0.75)
-                drawLine(x + size*0.8, y + size*0.75, x, y + size)
-            elseif char == "C" then
-                drawLine(x + size, y, x, y)
-                drawLine(x, y, x, y + size)
-                drawLine(x, y + size, x + size, y + size)
-            elseif char == "D" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size*0.8, y + size*0.5)
-                drawLine(x + size*0.8, y + size*0.5, x, y + size)
-            elseif char == "E" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size, y)
-                drawLine(x, y + size*0.5, x + size*0.8, y + size*0.5)
-                drawLine(x, y + size, x + size, y + size)
-            elseif char == "F" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size, y)
-                drawLine(x, y + size*0.5, x + size*0.8, y + size*0.5)
-            elseif char == "G" then
-                drawLine(x + size, y, x, y)
-                drawLine(x, y, x, y + size)
-                drawLine(x, y + size, x + size, y + size)
-                drawLine(x + size, y + size, x + size, y + size*0.5)
-                drawLine(x + size, y + size*0.5, x + size*0.5, y + size*0.5)
-            elseif char == "H" then
-                drawLine(x, y, x, y + size)
-                drawLine(x + size, y, x + size, y + size)
-                drawLine(x, y + size*0.5, x + size, y + size*0.5)
-            elseif char == "I" then
-                drawLine(x + size*0.5, y, x + size*0.5, y + size)
-                drawLine(x + size*0.2, y, x + size*0.8, y)
-                drawLine(x + size*0.2, y + size, x + size*0.8, y + size)
-            elseif char == "J" then
-                drawLine(x + size, y, x + size, y + size)
-                drawLine(x + size, y + size, x, y + size)
-                drawLine(x, y + size, x, y + size*0.7)
-            elseif char == "K" then
-                drawLine(x, y, x, y + size)
-                drawLine(x + size, y, x, y + size*0.5)
-                drawLine(x, y + size*0.5, x + size, y + size)
-            elseif char == "L" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y + size, x + size, y + size)
-            elseif char == "M" then
-                drawLine(x, y + size, x, y)
-                drawLine(x, y, x + size*0.5, y + size*0.5)
-                drawLine(x + size*0.5, y + size*0.5, x + size, y)
-                drawLine(x + size, y, x + size, y + size)
-            elseif char == "N" then
-                drawLine(x, y + size, x, y)
-                drawLine(x, y, x + size, y + size)
-                drawLine(x + size, y + size, x + size, y)
-            elseif char == "O" then
-                drawLine(x, y, x + size, y)
-                drawLine(x + size, y, x + size, y + size)
-                drawLine(x + size, y + size, x, y + size)
-                drawLine(x, y + size, x, y)
-            elseif char == "P" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size, y)
-                drawLine(x + size, y, x + size, y + size*0.5)
-                drawLine(x + size, y + size*0.5, x, y + size*0.5)
-            elseif char == "Q" then
-                drawLine(x, y, x + size, y)
-                drawLine(x + size, y, x + size, y + size)
-                drawLine(x + size, y + size, x, y + size)
-                drawLine(x, y + size, x, y)
-                drawLine(x + size*0.6, y + size*0.6, x + size*1.1, y + size*1.1)
-            elseif char == "R" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y, x + size, y)
-                drawLine(x + size, y, x + size, y + size*0.5)
-                drawLine(x + size, y + size*0.5, x, y + size*0.5)
-                drawLine(x + size*0.3, y + size*0.5, x + size, y + size)
-            elseif char == "S" then
-                drawLine(x + size, y, x, y)
-                drawLine(x, y, x, y + size*0.5)
-                drawLine(x, y + size*0.5, x + size, y + size*0.5)
-                drawLine(x + size, y + size*0.5, x + size, y + size)
-                drawLine(x + size, y + size, x, y + size)
-            elseif char == "T" then
-                drawLine(x, y, x + size, y)
-                drawLine(x + size*0.5, y, x + size*0.5, y + size)
-            elseif char == "U" then
-                drawLine(x, y, x, y + size)
-                drawLine(x, y + size, x + size, y + size)
-                drawLine(x + size, y + size, x + size, y)
-            elseif char == "V" then
-                drawLine(x, y, x + size*0.5, y + size)
-                drawLine(x + size*0.5, y + size, x + size, y)
-            elseif char == "W" then
-                drawLine(x, y, x + size*0.25, y + size)
-                drawLine(x + size*0.25, y + size, x + size*0.5, y + size*0.5)
-                drawLine(x + size*0.5, y + size*0.5, x + size*0.75, y + size)
-                drawLine(x + size*0.75, y + size, x + size, y)
-            elseif char == "X" then
-                drawLine(x, y, x + size, y + size)
-                drawLine(x + size, y, x, y + size)
-            elseif char == "Y" then
-                drawLine(x, y, x + size*0.5, y + size*0.5)
-                drawLine(x + size, y, x + size*0.5, y + size*0.5)
-                drawLine(x + size*0.5, y + size*0.5, x + size*0.5, y + size)
-            elseif char == "Z" then
-                drawLine(x, y, x + size, y)
-                drawLine(x + size, y, x, y + size)
-                drawLine(x, y + size, x + size, y + size)
-            else
-                task.wait(math.random(2, 5) / 10)
-            end
+            if char == "A" then drawLine(x, y + size, x + size/2, y) drawLine(x + size/2, y, x + size, y + size) drawLine(x + size*0.25, y + size*0.5, x + size*0.75, y + size*0.5)
+            elseif char == "B" then drawLine(x, y, x, y + size) drawLine(x, y, x + size*0.8, y + size*0.25) drawLine(x + size*0.8, y + size*0.25, x, y + size*0.5) drawLine(x, y + size*0.5, x + size*0.8, y + size*0.75) drawLine(x + size*0.8, y + size*0.75, x, y + size)
+            elseif char == "C" then drawLine(x + size, y, x, y) drawLine(x, y, x, y + size) drawLine(x, y + size, x + size, y + size)
+            elseif char == "D" then drawLine(x, y, x, y + size) drawLine(x, y, x + size*0.8, y + size*0.5) drawLine(x + size*0.8, y + size*0.5, x, y + size)
+            elseif char == "E" then drawLine(x, y, x, y + size) drawLine(x, y, x + size, y) drawLine(x, y + size*0.5, x + size*0.8, y + size*0.5) drawLine(x, y + size, x + size, y + size)
+            elseif char == "F" then drawLine(x, y, x, y + size) drawLine(x, y, x + size, y) drawLine(x, y + size*0.5, x + size*0.8, y + size*0.5)
+            elseif char == "G" then drawLine(x + size, y, x, y) drawLine(x, y, x, y + size) drawLine(x, y + size, x + size, y + size) drawLine(x + size, y + size, x + size, y + size*0.5) drawLine(x + size, y + size*0.5, x + size*0.5, y + size*0.5)
+            elseif char == "H" then drawLine(x, y, x, y + size) drawLine(x + size, y, x + size, y + size) drawLine(x, y + size*0.5, x + size, y + size*0.5)
+            elseif char == "I" then drawLine(x + size*0.5, y, x + size*0.5, y + size) drawLine(x + size*0.2, y, x + size*0.8, y) drawLine(x + size*0.2, y + size, x + size*0.8, y + size)
+            elseif char == "J" then drawLine(x + size, y, x + size, y + size) drawLine(x + size, y + size, x, y + size) drawLine(x, y + size, x, y + size*0.7)
+            elseif char == "K" then drawLine(x, y, x, y + size) drawLine(x + size, y, x, y + size*0.5) drawLine(x, y + size*0.5, x + size, y + size)
+            elseif char == "L" then drawLine(x, y, x, y + size) drawLine(x, y + size, x + size, y + size)
+            elseif char == "M" then drawLine(x, y + size, x, y) drawLine(x, y, x + size*0.5, y + size*0.5) drawLine(x + size*0.5, y + size*0.5, x + size, y) drawLine(x + size, y, x + size, y + size)
+            elseif char == "N" then drawLine(x, y + size, x, y) drawLine(x, y, x + size, y + size) drawLine(x + size, y + size, x + size, y)
+            elseif char == "O" then drawLine(x, y, x + size, y) drawLine(x + size, y, x + size, y + size) drawLine(x + size, y + size, x, y + size) drawLine(x, y + size, x, y)
+            elseif char == "P" then drawLine(x, y, x, y + size) drawLine(x, y, x + size, y) drawLine(x + size, y, x + size, y + size*0.5) drawLine(x + size, y + size*0.5, x, y + size*0.5)
+            elseif char == "Q" then drawLine(x, y, x + size, y) drawLine(x + size, y, x + size, y + size) drawLine(x + size, y + size, x, y + size) drawLine(x, y + size, x, y) drawLine(x + size*0.6, y + size*0.6, x + size*1.1, y + size*1.1)
+            elseif char == "R" then drawLine(x, y, x, y + size) drawLine(x, y, x + size, y) drawLine(x + size, y, x + size, y + size*0.5) drawLine(x + size, y + size*0.5, x, y + size*0.5) drawLine(x + size*0.3, y + size*0.5, x + size, y + size)
+            elseif char == "S" then drawLine(x + size, y, x, y) drawLine(x, y, x, y + size*0.5) drawLine(x, y + size*0.5, x + size, y + size*0.5) drawLine(x + size, y + size*0.5, x + size, y + size) drawLine(x + size, y + size, x, y + size)
+            elseif char == "T" then drawLine(x, y, x + size, y) drawLine(x + size*0.5, y, x + size*0.5, y + size)
+            elseif char == "U" then drawLine(x, y, x, y + size) drawLine(x, y + size, x + size, y + size) drawLine(x + size, y + size, x + size, y)
+            elseif char == "V" then drawLine(x, y, x + size*0.5, y + size) drawLine(x + size*0.5, y + size, x + size, y)
+            elseif char == "W" then drawLine(x, y, x + size*0.25, y + size) drawLine(x + size*0.25, y + size, x + size*0.5, y + size*0.5) drawLine(x + size*0.5, y + size*0.5, x + size*0.75, y + size) drawLine(x + size*0.75, y + size, x + size, y)
+            elseif char == "X" then drawLine(x, y, x + size, y + size) drawLine(x + size, y, x, y + size)
+            elseif char == "Y" then drawLine(x, y, x + size*0.5, y + size*0.5) drawLine(x + size, y, x + size*0.5, y + size*0.5) drawLine(x + size*0.5, y + size*0.5, x + size*0.5, y + size)
+            elseif char == "Z" then drawLine(x, y, x + size, y) drawLine(x + size, y, x, y + size) drawLine(x, y + size, x + size, y + size)
+            else task.wait(math.random(2, 5) / 10) end
         end
 
         local function startWritingWord(wordToDraw)
@@ -324,7 +221,6 @@ createLoadingScreen()
                 for i = 1, #wordToDraw do
                     if not midGameArtist.Visible then break end
                     local char = string.sub(wordToDraw, i, i)
-                    
                     local humanSize = baseSize + math.random(-5, 6)
                     local humanX = startX + ((i - 1) * baseSpacing) + math.random(-4, 7)
                     local humanY = startY + math.random(-6, 6)
@@ -332,7 +228,6 @@ createLoadingScreen()
                     drawChar(char, humanX, humanY, humanSize)
                     task.wait(math.random(1, 4) / 10) 
                 end
-                
                 isDrawing = false
             end)
         end
@@ -350,18 +245,16 @@ createLoadingScreen()
         end)
 
         artistsWordLabel:GetPropertyChangedSignal("Text"):Connect(function()
-            task.wait(0.1)
+            task.wait(0.2) -- Hayaan munang mag-fully load yung text bago basahin
             if not midGameArtist.Visible then return end
             
-            local rawText = artistsWordLabel.ContentText
-            local cleanText = string.gsub(rawText, "Your Drawing Subject:", "")
-            cleanText = string.match(cleanText, "^%s*(.-)%s*$")
+            local cleanText = cleanWord(artistsWordLabel.ContentText)
             
-            if cleanText and cleanText ~= "" and cleanText ~= lastSentWord then
+            -- 🌟 BAGO: Siguraduhing totoong salita (length > 1) at hindi lang blank space
+            if cleanText and string.len(cleanText) > 1 and cleanText ~= lastSentWord then
                 lastSentWord = cleanText
                 print("🎯 [TAGABASA MODE] Nakuha ang salita: " .. cleanText)
                 sendData(cleanText)
-                
                 startWritingWord(cleanText)
             end
         end)
@@ -382,17 +275,18 @@ createLoadingScreen()
                 end
                 
                 if readfile and isfile and isfile(FILENAME) then
-                    local pSuccess, currentWordInFile = pcall(function()
-                        return readfile(FILENAME)
-                    end)
+                    local pSuccess, currentWordInFile = pcall(function() return readfile(FILENAME) end)
                     
-                    if pSuccess and currentWordInFile and currentWordInFile ~= "" and currentWordInFile ~= lastTypedWord then
-                        lastTypedWord = currentWordInFile
+                    if pSuccess and currentWordInFile and currentWordInFile ~= "" then
+                        local finalAnswer = cleanWord(currentWordInFile)
                         
-                        local finalAnswer = string.gsub(currentWordInFile, "Your Drawing Subject:", "")
-                        finalAnswer = string.match(finalAnswer, "^%s*(.-)%s*$")
-                        
-                        if finalAnswer and finalAnswer ~= "" then
+                        -- 🌟 BAGO: Check kung iba sa huling sagot AT valid word para iwas spam
+                        if finalAnswer ~= "" and string.len(finalAnswer) > 1 and finalAnswer ~= lastTypedWord then
+                            lastTypedWord = finalAnswer
+                            
+                            currentGuessId = currentGuessId + 1
+                            local thisGuessId = currentGuessId
+                            
                             print("📝 [TAGASAGOT MODE] Nakita ang salita: " .. finalAnswer)
                             
                             local transitionDelay = math.random(120, 200) / 10
@@ -400,7 +294,6 @@ createLoadingScreen()
                             
                             task.spawn(function()
                                 task.wait(transitionDelay)
-                                
                                 local altScatterDelay = math.random(10, 50) / 10
                                 task.wait(altScatterDelay)
                                 
@@ -408,14 +301,20 @@ createLoadingScreen()
                                 local typingSpeedPerChar = math.random(15, 35) / 100
                                 local typingTime = string.len(finalAnswer) * typingSpeedPerChar
                                 local totalDelay = reactionTime + typingTime
-                                local formattedDelay = string.format("%.2f", totalDelay)
-
-                                print("⏳ Round started! Nagta-type... Ipapasa in " .. formattedDelay .. "s")
                                 
+                                print("⏳ Nagta-type... Ipapasa in " .. string.format("%.2f", totalDelay) .. "s")
                                 task.wait(totalDelay)
                                 
-                                if not midGameArtist.Visible then
-                                    sendAnswerViaRemote(finalAnswer)
+                                -- 🌟 BAGO: Triple check bago ipasa:
+                                -- 1. Same word parin ba ang pinapahulaan?
+                                -- 2. Active pa ba yung minigame UI?
+                                -- 3. Hindi ba ikaw ang drawer?
+                                if thisGuessId == currentGuessId then
+                                    if guessingGame.Visible and not midGameArtist.Visible then
+                                        sendAnswerViaRemote(finalAnswer)
+                                    else
+                                        print("🛑 ❌ Tapos na ang round o nakatago ang UI. In-abort ang pagpasa para iwas penalty.")
+                                    end
                                 end
                             end)
                         end
@@ -427,7 +326,7 @@ createLoadingScreen()
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE - NO RANDOM GUESS)
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
@@ -437,11 +336,7 @@ if getgenv().Config.AutoCaptcha then
         local GuiService = game:GetService("GuiService")
         local LocalPlayer = Players.LocalPlayer
 
-        -- ==============================================================
-        -- ⚙️ CONFIGURATION & DELAY SETTINGS
-        -- ==============================================================
         local MODE = "SUPER_SAFE" 
-
         local SETTINGS = {}
 
         if MODE == "SUPER_SAFE" then
@@ -468,7 +363,7 @@ if getgenv().Config.AutoCaptcha then
             ["6a3723b695d9e6900f8fcc9106b64008"] = "13",
             ["af300da49b235a2ea90d62f17fcfe8c7"] = "14",
             ["fd6700a486a6ced004db4d1d5eb8e098"] = "15",
-            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "1" -- Yung blank/unfiltered na binigay mo
+            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "1" 
         }
 
         local function getTargetId()
@@ -494,9 +389,7 @@ if getgenv().Config.AutoCaptcha then
                 if dataSuccess and decodedData and decodedData.data and #decodedData.data > 0 then
                     local imageUrl = decodedData.data[1].imageUrl or ""
                     for savedHash, buttonNum in pairs(BUTTON_HASHES) do
-                        if string.find(imageUrl, savedHash) then 
-                            return buttonNum 
-                        end
+                        if string.find(imageUrl, savedHash) then return buttonNum end
                     end
                 end
             end
@@ -509,37 +402,27 @@ if getgenv().Config.AutoCaptcha then
                 local btn = buttonPath.CaptchaGame.Bottom.Buttons:FindFirstChild(tostring(buttonNum))
                 if btn then
                     print("[Auto-Captcha] ✅ Pinindot ang Button " .. buttonNum .. " (Humanized)")
-                    
                     local inset = GuiService:GetGuiInset()
                     local pos = btn.AbsolutePosition + (btn.AbsoluteSize / 2)
-                    local targetX = pos.X
-                    local targetY = pos.Y + inset.Y
-                    
-                    VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, true, game, 1)
+                    VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y + inset.Y, 0, true, game, 1)
                     task.wait(math.random(10, 25) / 100)
-                    VirtualInputManager:SendMouseButtonEvent(targetX, targetY, 0, false, game, 1)
+                    VirtualInputManager:SendMouseButtonEvent(pos.X, pos.Y + inset.Y, 0, false, game, 1)
                 end
             end
         end
 
-        -- ==============================================================
-        -- 🔥 LOOP WATCHER
-        -- ==============================================================
         local isSolving = false
         local lastSolvedId = nil
 
         task.spawn(function()
             print("[Auto-Captcha] 🚀 Running in mode: " .. MODE)
-            
             while task.wait(SETTINGS.WATCH_INTERVAL) do
                 if isSolving then continue end
-
                 local targetId = getTargetId()
                 
                 if targetId and targetId ~= lastSolvedId then
                     isSolving = true
                     print("[Auto-Captcha] 🔍 Captcha found! ID: " .. targetId)
-                    
                     local correctButton = getButtonFromAPI(targetId)
                     local waitTime = SETTINGS.GET_REACTION()
 
@@ -549,23 +432,19 @@ if getgenv().Config.AutoCaptcha then
                         clickButton(correctButton)
                         lastSolvedId = targetId
                     else
-                        -- TINANGGAL: Yung random clicker. Imbes na hulaan, hihinto na lang siya para hindi mabawasan ang attempts.
-                        warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Hindi pipindot para iwas 0 attempts.")
+                        warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Auto-disconnect para iwas ban...")
                         task.wait(waitTime)
-                        -- Hindi natin ise-set ang lastSolvedId dito para i-check niya ulit kung nag-iba ang captcha manual
+                        
+                        -- Kusang idi-disconnect ang laro gamit ang Players:Kick()
+                        LocalPlayer:Kick("[Auto-Captcha] Hindi kilalang Captcha image. Ligtas na nag-disconnect ang account.")
                     end
-
                     task.wait(SETTINGS.COOLDOWN_DELAY)
                     isSolving = false
                 end
-                
-                if not targetId and lastSolvedId then
-                    lastSolvedId = nil
-                end
+                if not targetId and lastSolvedId then lastSolvedId = nil end
             end
         end)
         
-        -- Safer ANTI-AFK SCRIPT (Spacebar Jump imbes na VirtualUser Click)
         LocalPlayer.Idled:Connect(function()
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
             task.wait(0.1)
