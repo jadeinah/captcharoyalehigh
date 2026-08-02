@@ -65,7 +65,7 @@ local function createLoadingScreen()
     textLabel.Position = UDim2.new(0.5, 0, 1, 15)
     textLabel.Size = UDim2.new(0, 200, 0, 50)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = "Jadeys😴"
+    textLabel.Text = "Jadey 😴"
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.TextScaled = true
     textLabel.Font = Enum.Font.GothamBold
