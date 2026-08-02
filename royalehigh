@@ -31,61 +31,50 @@ if getgenv().Config.AutoArtClass then
         local TweenService = game:GetService("TweenService")
         local CoreGui = game:GetService("CoreGui")
 
-        -- ==========================================
-        -- 🎨 LOADING SCREEN (JADEY)
-        -- ==========================================
-        local function createLoadingScreen()
-            -- Use CoreGui to hide from game's UI checks, fallback to PlayerGui if executor doesn't support CoreGui
-            local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
-            
-            local loadingScreen = Instance.new("ScreenGui")
-            loadingScreen.Name = "JadeyLoader"
-            loadingScreen.Parent = parentGui
-            loadingScreen.IgnoreGuiInset = true
-            loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+      -- ==========================================
+-- 🎨 LOADING SCREEN (JADEY) - PERMANENT STAY
+-- ==========================================
+local function createLoadingScreen()
+    -- Alisin muna kung meron nang naunang loader para hindi mag-double
+    local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
+    if parentGui:FindFirstChild("JadeyLoader") then
+        parentGui.JadeyLoader:Destroy()
+    end
+    
+    local loadingScreen = Instance.new("ScreenGui")
+    loadingScreen.Name = "JadeyLoader"
+    loadingScreen.Parent = parentGui
+    loadingScreen.IgnoreGuiInset = true
+    loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    loadingScreen.ResetOnSpawn = false
 
-            -- Logo setup
-            local logo = Instance.new("ImageLabel")
-            logo.Parent = loadingScreen
-            logo.AnchorPoint = Vector2.new(0.5, 0)
-            logo.Position = UDim2.new(0.5, 0, 0.15, 0)
-            logo.Size = UDim2.new(0, 150, 0, 150)
-            logo.BackgroundTransparency = 1
-            logo.Image = "rbxassetid://140611556116986"
-            logo.ImageTransparency = 0
+    -- Logo setup
+    local logo = Instance.new("ImageLabel")
+    logo.Parent = loadingScreen
+    logo.AnchorPoint = Vector2.new(0.5, 0)
+    logo.Position = UDim2.new(0.5, 0, 0.15, 0)
+    logo.Size = UDim2.new(0, 150, 0, 150)
+    logo.BackgroundTransparency = 1
+    logo.Image = "rbxassetid://140611556116986"
+    logo.ImageTransparency = 0
 
-            -- Jadey Text setup
-            local textLabel = Instance.new("TextLabel")
-            textLabel.Parent = logo
-            textLabel.AnchorPoint = Vector2.new(0.5, 0)
-            textLabel.Position = UDim2.new(0.5, 0, 1, 15)
-            textLabel.Size = UDim2.new(0, 200, 0, 50)
-            textLabel.BackgroundTransparency = 1
-            textLabel.Text = "Jadey"
-            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-            textLabel.TextScaled = true
-            textLabel.Font = Enum.Font.GothamBold
-            textLabel.TextTransparency = 1 
-            textLabel.TextStrokeTransparency = 1
-            textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    -- Jadey Text setup
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = logo
+    textLabel.AnchorPoint = Vector2.new(0.5, 0)
+    textLabel.Position = UDim2.new(0.5, 0, 1, 15)
+    textLabel.Size = UDim2.new(0, 200, 0, 50)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = "Jadeys😴"
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.TextTransparency = 0  
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+end
 
-            -- Fade Animation
-            local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            
-            TweenService:Create(logo, tweenInfo, {ImageTransparency = 0}):Play()
-            TweenService:Create(textLabel, tweenInfo, {TextTransparency = 0, TextStrokeTransparency = 0}):Play()
-
-            -- Fade out and destroy after 3.5 seconds
-            task.spawn(function()
-                task.wait(3.5)
-                TweenService:Create(logo, tweenInfo, {ImageTransparency = 1}):Play()
-                TweenService:Create(textLabel, tweenInfo, {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
-                task.wait(1)
-                loadingScreen:Destroy()
-            end)
-        end
-
-        createLoadingScreen()
+createLoadingScreen()
 
         -- ==========================================
         -- ⚙️ MAIN BOT SCRIPT VARIABLES
