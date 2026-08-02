@@ -31,7 +31,7 @@ if getgenv().Config.AutoArtClass then
         local TweenService = game:GetService("TweenService")
         local CoreGui = game:GetService("CoreGui")
 
-      -- ==========================================
+-- ==========================================
 -- 🎨 LOADING SCREEN (JADEY) - PERMANENT STAY
 -- ==========================================
 local function createLoadingScreen()
@@ -47,6 +47,9 @@ local function createLoadingScreen()
     loadingScreen.IgnoreGuiInset = true
     loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     loadingScreen.ResetOnSpawn = false
+    
+    -- 🌟 ITO ANG FIX: I-force sa pinaka-ibabaw para hindi matabunan ng game UI
+    loadingScreen.DisplayOrder = 999999 
 
     -- Logo setup
     local logo = Instance.new("ImageLabel")
