@@ -8,95 +8,95 @@ local WEBHOOK_URL = "https://discord.com/api/webhooks/1533414642632888423/piQlo3
 -- Table para maiwasan ang pag-spam ng iisang ID sa Discord
 local loggedIDs = {}
 
--- KUMPLETONG DATABASE (Pinagsama ang Luma at Bagong IDs na binigay mo)
+-- KUMPLETONG DATABASE (Na-update na may kasamang mga bagong IDs mula sa txt file)
 local captchaDatabase = {
-    ["1"] = {"15220543378", "15220770835", "15220584182", "15220628019", "15220780362", "15220784077", "15220800877", "15220536502"},
-    ["2"] = {"15221056660", "15221088741", "15221172882", "15221194062", "15221197696", "15221117186", "15221102369", "15221123456", "15221127882", "15221183738", "15237678961"},
-    ["3"] = {"15237826687", "15237973849", "15238067838", "15238164095", "15238183711", "15238184594", "15237827565", "15238069808", "15238152550", "15238180377", "15237810040", "15238175452", "15237819357", "15237999904", "15237994492"},
-    ["4"] = {"15245932127", "15245955563", "15245959789", "15246120774", "15246136371", "15246307897", "15246311764", "15246312712", "15246324833", "15246151466", "15246021103", "15246257665", "15246295738", "15245938553", "15246318824", "15246137252"},
-    ["5"] = {"15246530216", "15246666571", "15246792830", "15246476906", "15246785418", "15270137776", "15246493433", "15246665698", "15246515092", "15246718130", "15246723768"},
-    ["6"] = {"15269939494", "15269949092", "15270010339", "15270038942", "15270075765", "15270076735", "15270125047", "15270145060", "15269933492", "15270085559", "15270040197"},
-    ["7"] = {"15277402273", "15277544695", "15277559085", "15277591870", "15277684138", "15277700371"},
-    ["8"] = {"15277754165", "15277755404", "15277787665", "15277949411", "15277979132", "15278039449", "15277880596", "15277976495"},
-    ["9"] = {"15278149366", "15278180499", "15278238185", "15278252437", "15278290849", "15278355740", "15278372046", "15278310263", "15278336858", "15278339234", "15278235467", "15278293592", "15178315296"},
-    ["10"]= {"15279020022", "15278924553", "15279039301", "15279069232", "15279083305", "15278578276", "15278979682", "15279058464", "15278724051", "15279071205"},
-    ["11"]= {"15279228432", "15279233807", "15279249139", "15279322262", "15279325490", "15279367926", "15279393340", "15279481730", "15279483139", "15279515363", "15279512516", "15279216350", "15279546678"},
-    ["12"]= {"15279661642", "15279665328", "15279671769", "15279698876", "15279710003", "15279712383", "15279860860", "15279633174", "15279697918", "15279700297", "15279650570", "15279859685"},
-    ["13"]= {"15280090756", "15280092019", "15280567287", "15280610057", "15280089595", "15280138545", "15280193895", "15280235367", "15280549349"},
-    ["14"]= {"15280671647", "15280708424", "15280756583", "15280776111", "15280779387", "15280870775", "15280725622", "15280668386", "15280697938", "15280808434", "15280689696"},
-    ["15"]= {"15280941600", "15281010019", "15281016648", "15281069567", "15281070235", "15281085116", "15281157021", "15281092160", "15280995843", "15280993160", "15280992543", "15281034592", "15281063910", "15281138739", "15281139526", "15281083413"}
+	["1"] = {"15220543378", "15220770835", "15220584182", "15220628019", "15220780362", "15220784077", "15220800877", "15220536502", "15220724875", "15220739699"},
+	["2"] = {"15221056660", "15221088741", "15221172882", "15221194062", "15221197696", "15221117186", "15221102369", "15221123456", "15221127882", "15221183738", "15237678961", "15220887195", "15220949495", "15221046556", "15221167581", "15221172052", "15237702142"},
+	["3"] = {"15237826687", "15237973849", "15238067838", "15238164095", "15238183711", "15238184594", "15237827565", "15238069808", "15238152550", "15238180377", "15237810040", "15238175452", "15237819357", "15237999904", "15237994492", "15237738973", "15237959091", "15237988665", "15238178982"},
+	["4"] = {"15245932127", "15245955563", "15245959789", "15246120774", "15246136371", "15246307897", "15246311764", "15246312712", "15246324833", "15246151466", "15246021103", "15246257665", "15246295738", "15245938553", "15246318824", "15246137252", "15245947674", "15246131748", "15246163154"},
+	["5"] = {"15246530216", "15246666571", "15246792830", "15246476906", "15246785418", "15270137776", "15246493433", "15246665698", "15246515092", "15246718130", "15246723768", "15246498544", "15246504589", "15246510643", "15246528189", "15246534367", "15246706767"},
+	["6"] = {"15269939494", "15269949092", "15270010339", "15270038942", "15270075765", "15270076735", "15270125047", "15270145060", "15269933492", "15270085559", "15270040197", "15270046497", "15270068924"},
+	["7"] = {"15277402273", "15277544695", "15277559085", "15277591870", "15277684138", "15277700371", "15277403598", "15277551677", "15277682684", "15277698097"},
+	["8"] = {"15277754165", "15277755404", "15277787665", "15277949411", "15277979132", "15278039449", "15277880596", "15277976495", "15277756709", "15277786142", "15277832706", "15277844993", "15277929437", "15277948242", "15277989276"},
+	["9"] = {"15278149366", "15278180499", "15278238185", "15278252437", "15278290849", "15278355740", "15278372046", "15278310263", "15278336858", "15278339234", "15278235467", "15278293592", "15178315296"},
+	["10"]= {"15279020022", "15279039301", "15279069232", "15279083305", "15278578276", "15278979682", "15279058464", "15278724051", "15279071205", "15278727775", "15278982200", "15279123987", "15279212251"},
+	["11"]= {"15279228432", "15279233807", "15279249139", "15279322262", "15279325490", "15279367926", "15279393340", "15279481730", "15279483139", "15279515363", "15279512516", "15279216350", "15279546678", "15279324384", "15279484514", "15279544630"},
+	["12"]= {"15279661642", "15279665328", "15279671769", "15279698876", "15279710003", "15279712383", "15279860860", "15279633174", "15279697918", "15279700297", "15279650570", "15279859685", "15279865083", "15280007915"},
+	["13"]= {"15280090756", "15280092019", "15280567287", "15280610057", "15280089595", "15280138545", "15280193895", "15280235367", "15280549349", "15280200901", "15280557713"},
+	["14"]= {"15280671647", "15280708424", "15280756583", "15280776111", "15280779387", "15280870775", "15280725622", "15280668386", "15280697938", "15280808434", "15280689696", "15280790122"},
+	["15"]= {"15280941600", "15281010019", "15281016648", "15281069567", "15281070235", "15281085116", "15281157021", "15281092160", "15280995843", "15280993160", "15280992543", "15281034592", "15281063910", "15281138739", "15281139526", "15281083413"}
 }
 
 -- Function para mag-send sa Discord kapag walang nahanap sa database
 local function sendToDiscord(unknownId)
-    if loggedIDs[unknownId] then return end 
-    
-    local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request or HttpPost
-    
-    if httpRequest then
-        local data = {
-            ["content"] = "🚨 **New Captcha ID Found!**\nPlayer: `" .. LocalPlayer.Name .. "`\nUnknown ID: `" .. unknownId .. "`\n*Please check what image this is and add it to the database.*"
-        }
-        
-        local success, err = pcall(function()
-            httpRequest({
-                Url = WEBHOOK_URL,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = HttpService:JSONEncode(data)
-            })
-        end)
-        
-        if success then
-            print("[Auto-Captcha] Successfully sent Unknown ID (" .. unknownId .. ") to Discord!")
-            loggedIDs[unknownId] = true 
-        else
-            warn("[Auto-Captcha] Failed to send webhook: " .. tostring(err))
-        end
-    else
-        warn("[Auto-Captcha] Your executor does not support HTTP requests. Cannot send to Discord.")
-    end
+	if loggedIDs[unknownId] then return end 
+	
+	local httpRequest = (syn and syn.request) or (http and http.request) or http_request or request or HttpPost
+	
+	if httpRequest then
+		local data = {
+			["content"] = "🚨 **New Captcha ID Found!**\nPlayer: `" .. LocalPlayer.Name .. "`\nUnknown ID: `" .. unknownId .. "`\n*Please check what image this is and add it to the database.*"
+		}
+		
+		local success, err = pcall(function()
+			httpRequest({
+				Url = WEBHOOK_URL,
+				Method = "POST",
+				Headers = {
+					["Content-Type"] = "application/json"
+				},
+				Body = HttpService:JSONEncode(data)
+			})
+		end)
+		
+		if success then
+			print("[Auto-Captcha] Successfully sent Unknown ID (" .. unknownId .. ") to Discord!")
+			loggedIDs[unknownId] = true 
+		else
+			warn("[Auto-Captcha] Failed to send webhook: " .. tostring(err))
+		end
+	else
+		warn("[Auto-Captcha] Your executor does not support HTTP requests. Cannot send to Discord.")
+	end
 end
 
 -- Kunin ang ID ng main image na pinapahanap sa Captcha
 local function getTargetId()
-    local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
-    if topCard and topCard:FindFirstChild("CaptchaGame") and topCard.CaptchaGame.Top.Card then
-        local imageString = topCard.CaptchaGame.Top.Card.Image
-        local extractedId = string.match(imageString, "id=(%d+)")
-        return extractedId
-    end
-    return nil
+	local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
+	if topCard and topCard:FindFirstChild("CaptchaGame") and topCard.CaptchaGame.Top.Card then
+		local imageString = topCard.CaptchaGame.Top.Card.Image
+		local extractedId = string.match(imageString, "id=(%d+)")
+		return extractedId
+	end
+	return nil
 end
 
 -- I-scan ang database natin
 local function findCorrectButton(targetId)
-    for buttonNum, ids in pairs(captchaDatabase) do
-        for _, id in ipairs(ids) do
-            if id == targetId then
-                return buttonNum
-            end
-        end
-    end
-    return nil
+	for buttonNum, ids in pairs(captchaDatabase) do
+		for _, id in ipairs(ids) do
+			if id == targetId then
+				return buttonNum
+			end
+		end
+	end
+	return nil
 end
 
 -- Pindutin ang button (1-15) kung nahanap sa database
 local function clickButton(buttonNum)
-    local buttonPath = LocalPlayer.PlayerGui.CardCaptchaGame.CaptchaGame.Bottom.Buttons[tostring(buttonNum)]
-    
-    if buttonPath then
-        print("[Auto-Captcha] Pinindot ang Button " .. buttonNum)
-        if getconnections then
-            for _, connection in pairs(getconnections(buttonPath.MouseButton1Click)) do
-                connection:Fire()
-            end
-        else
-            warn("[Auto-Captcha] Walang getconnections na available.")
-        end
-    end
+	local buttonPath = LocalPlayer.PlayerGui.CardCaptchaGame.CaptchaGame.Bottom.Buttons[tostring(buttonNum)]
+	
+	if buttonPath then
+		print("[Auto-Captcha] Pinindot ang Button " .. buttonNum)
+		if getconnections then
+			for _, connection in pairs(getconnections(buttonPath.MouseButton1Click)) do
+				connection:Fire()
+			end
+		else
+			warn("[Auto-Captcha] Walang getconnections na available.")
+		end
+	end
 end
 
 -- ==============================================================
@@ -104,42 +104,42 @@ end
 -- ==============================================================
 
 local function solveCaptcha(captchaGui)
-    if captchaGui and captchaGui.Enabled then
-        print("[Auto-Captcha] Captcha Detected! Solving...")
-        task.wait(1) 
-        
-        local targetId = getTargetId()
-        if targetId then
-            local correctButton = findCorrectButton(targetId)
-            
-            if correctButton then
-                clickButton(correctButton)
-            else
-                warn("[Auto-Captcha] Hindi mahanap yung ID na " .. targetId .. " sa database.")
-                sendToDiscord(targetId)
-            end
-        end
-    end
+	if captchaGui and captchaGui.Enabled then
+		print("[Auto-Captcha] Captcha Detected! Solving...")
+		task.wait(1) 
+		
+		local targetId = getTargetId()
+		if targetId then
+			local correctButton = findCorrectButton(targetId)
+			
+			if correctButton then
+				clickButton(correctButton)
+			else
+				warn("[Auto-Captcha] Hindi mahanap yung ID na " .. targetId .. " sa database.")
+				sendToDiscord(targetId)
+			end
+		end
+	end
 end
 
 local function hookCaptcha(captchaGui)
-    captchaGui:GetPropertyChangedSignal("Enabled"):Connect(function()
-        solveCaptcha(captchaGui)
-    end)
-    solveCaptcha(captchaGui)
+	captchaGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		solveCaptcha(captchaGui)
+	end)
+	solveCaptcha(captchaGui)
 end
 
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local existingCaptcha = PlayerGui:FindFirstChild("CardCaptchaGame")
 
 if existingCaptcha then
-    hookCaptcha(existingCaptcha)
+	hookCaptcha(existingCaptcha)
 end
 
 PlayerGui.ChildAdded:Connect(function(child)
-    if child.Name == "CardCaptchaGame" then
-        hookCaptcha(child)
-    end
+	if child.Name == "CardCaptchaGame" then
+		hookCaptcha(child)
+	end
 end)
 
-print("[Auto-Captcha] Updated Watcher Started. Database has been updated!")
+print("[Auto-Captcha] Fully updated script ready with merged database!")
