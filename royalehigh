@@ -341,7 +341,6 @@ if getgenv().Config.AutoCaptcha then
         local HttpService = game:GetService("HttpService")
         local VirtualInputManager = game:GetService("VirtualInputManager")
         local GuiService = game:GetService("GuiService")
-        local TeleportService = game:GetService("TeleportService")
 
         local MODE = "SUPER_SAFE" 
         local SETTINGS = {}
@@ -441,16 +440,9 @@ if getgenv().Config.AutoCaptcha then
                 if checkFailedToLoad() then
                     getgenv().IsCaptchaActive = true -- I-pause ang art class para ligtas
                     isSolving = true
-                    local isVIP = game.PrivateServerId ~= ""
-                    if isVIP then
-                        warn("[Auto-Captcha] ⚠️ 'Failed to load' sa loob ng VIP! Kicking to let Manager relaunch...")
-                        task.wait(1)
-                        LocalPlayer:Kick("[Auto-Captcha Bypass] Failed to load cards. Auto-Manager, please reconnect to VIP server.")
-                    else
-                        warn("[Auto-Captcha] ⚠️ 'Failed to load' sa Public Server. Nagse-server hop...")
-                        task.wait(1)
-                        pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer) end)
-                    end
+                    warn("[Auto-Captcha] ⚠️ 'Failed to load' nadetect! Auto-disconnecting...")
+                    task.wait(1)
+                    LocalPlayer:Kick("[Auto-Captcha Bypass] Failed to load cards. Totally disconnected safely.")
                     task.wait(15)
                     isSolving = false
                     continue
