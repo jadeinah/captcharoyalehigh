@@ -24,7 +24,7 @@ if getgenv().Config.AutoArtClass then
         local VirtualInputManager = game:GetService("VirtualInputManager")
         local GuiService = game:GetService("GuiService")
         local HttpService = game:GetService("HttpService")
-        local TweenService = game:GetService("TweenService")
+        local TweenService = game:GetService("TweenService") -- Binalik
         local CoreGui = game:GetService("CoreGui")
 
         -- ==========================================
@@ -42,7 +42,7 @@ if getgenv().Config.AutoArtClass then
             loadingScreen.IgnoreGuiInset = true
             loadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
             loadingScreen.ResetOnSpawn = false
-            loadingScreen.DisplayOrder = 999999 -- Nasa pinaka-ibabaw
+            loadingScreen.DisplayOrder = 999999
 
             local logo = Instance.new("ImageLabel")
             logo.Parent = loadingScreen
@@ -87,18 +87,17 @@ if getgenv().Config.AutoArtClass then
         local lastSentWord = ""
         local lastTypedWord = ""
         local isDrawing = false
-        local currentGuessId = 0 -- 🌟 BAGO: Para hindi mag-double guess
+        local currentGuessId = 0
 
         print("🤖 [SMART BOT] Ready! Naka-link sa server file: " .. FILENAME)
 
         -- ==========================================
         -- 🚀 HELPER FUNCTIONS
         -- ==========================================
-        -- 🌟 BAGO: Safe Text Cleaner (Tatanggalin ang newlines at extra spaces)
         local function cleanWord(str)
             local s = string.gsub(str, "Your Drawing Subject:", "")
-            s = string.gsub(s, "[\n\r]", "") -- Remove invisible enters
-            s = string.match(s, "^%s*(.-)%s*$") -- Trim extra spaces
+            s = string.gsub(s, "[\n\r]", "") 
+            s = string.match(s, "^%s*(.-)%s*$") 
             return s
         end
 
@@ -245,12 +244,11 @@ if getgenv().Config.AutoArtClass then
         end)
 
         artistsWordLabel:GetPropertyChangedSignal("Text"):Connect(function()
-            task.wait(0.2) -- Hayaan munang mag-fully load yung text bago basahin
+            task.wait(0.2) 
             if not midGameArtist.Visible then return end
             
             local cleanText = cleanWord(artistsWordLabel.ContentText)
             
-            -- 🌟 BAGO: Siguraduhing totoong salita (length > 1) at hindi lang blank space
             if cleanText and string.len(cleanText) > 1 and cleanText ~= lastSentWord then
                 lastSentWord = cleanText
                 print("🎯 [TAGABASA MODE] Nakuha ang salita: " .. cleanText)
@@ -280,7 +278,6 @@ if getgenv().Config.AutoArtClass then
                     if pSuccess and currentWordInFile and currentWordInFile ~= "" then
                         local finalAnswer = cleanWord(currentWordInFile)
                         
-                        -- 🌟 BAGO: Check kung iba sa huling sagot AT valid word para iwas spam
                         if finalAnswer ~= "" and string.len(finalAnswer) > 1 and finalAnswer ~= lastTypedWord then
                             lastTypedWord = finalAnswer
                             
@@ -305,10 +302,6 @@ if getgenv().Config.AutoArtClass then
                                 print("⏳ Nagta-type... Ipapasa in " .. string.format("%.2f", totalDelay) .. "s")
                                 task.wait(totalDelay)
                                 
-                                -- 🌟 BAGO: Triple check bago ipasa:
-                                -- 1. Same word parin ba ang pinapahulaan?
-                                -- 2. Active pa ba yung minigame UI?
-                                -- 3. Hindi ba ikaw ang drawer?
                                 if thisGuessId == currentGuessId then
                                     if guessingGame.Visible and not midGameArtist.Visible then
                                         sendAnswerViaRemote(finalAnswer)
@@ -326,7 +319,7 @@ if getgenv().Config.AutoArtClass then
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE)
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE WITH BYPASS)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
@@ -334,13 +327,14 @@ if getgenv().Config.AutoCaptcha then
         local HttpService = game:GetService("HttpService")
         local VirtualInputManager = game:GetService("VirtualInputManager")
         local GuiService = game:GetService("GuiService")
+        local TeleportService = game:GetService("TeleportService") -- DINAGDAG: Para sa server hop
         local LocalPlayer = Players.LocalPlayer
 
         local MODE = "SUPER_SAFE" 
         local SETTINGS = {}
 
         if MODE == "SUPER_SAFE" then
-            SETTINGS.WATCH_INTERVAL = 0.5   
+            SETTINGS.WATCH_INTERVAL = 1   
             SETTINGS.GET_REACTION = function() return math.random(150, 350) / 100 end 
             SETTINGS.COOLDOWN_DELAY = 2.5   
         end
@@ -363,8 +357,21 @@ if getgenv().Config.AutoCaptcha then
             ["6a3723b695d9e6900f8fcc9106b64008"] = "13",
             ["af300da49b235a2ea90d62f17fcfe8c7"] = "14",
             ["fd6700a486a6ced004db4d1d5eb8e098"] = "15",
-            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "KICK" -- Binago para mag-trigger ng auto-disconnect
+            ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "KICK" 
         }
+
+        -- DINAGDAG: Function para i-check kung stuck sa "Failed to load"
+        local function checkFailedToLoad()
+            local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
+            if topCard then
+                for _, v in pairs(topCard:GetDescendants()) do
+                    if v:IsA("TextLabel") and string.find(string.lower(v.Text), "failed to load") then
+                        return true
+                    end
+                end
+            end
+            return false
+        end
 
         local function getTargetId()
             local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
@@ -418,6 +425,25 @@ if getgenv().Config.AutoCaptcha then
             print("[Auto-Captcha] 🚀 Running in mode: " .. MODE)
             while task.wait(SETTINGS.WATCH_INTERVAL) do
                 if isSolving then continue end
+
+                -- DINAGDAG: BYPASS kapag "Failed to load"
+                if checkFailedToLoad() then
+                    isSolving = true
+                    local isVIP = game.PrivateServerId ~= ""
+                    if isVIP then
+                        warn("[Auto-Captcha] ⚠️ 'Failed to load' sa loob ng VIP! Kicking to let Manager relaunch...")
+                        task.wait(1)
+                        LocalPlayer:Kick("[Auto-Captcha Bypass] Failed to load cards. Auto-Manager, please reconnect to VIP server.")
+                    else
+                        warn("[Auto-Captcha] ⚠️ 'Failed to load' sa Public Server. Nagse-server hop...")
+                        task.wait(1)
+                        pcall(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer) end)
+                    end
+                    task.wait(15)
+                    isSolving = false
+                    continue
+                end
+
                 local targetId = getTargetId()
                 
                 if targetId and targetId ~= lastSolvedId then
@@ -426,17 +452,23 @@ if getgenv().Config.AutoCaptcha then
                     local correctButton = getButtonFromAPI(targetId)
                     local waitTime = SETTINGS.GET_REACTION()
 
-                    -- Check kung KICK hash ba or kung wala sa list (nil)
-                    if correctButton == "KICK" or correctButton == nil then
-                        local reason = (correctButton == "KICK") and "Nadetect ang iniiwasang Captcha hash!" or "HINDI KILALA ANG IMAGE!"
-                        local kickMessage = (correctButton == "KICK") and "Specific hash detected. Ligtas na nag-disconnect ang account." or "Hindi kilalang Captcha image. Ligtas na nag-disconnect ang account."
-                        
-                        warn("[Auto-Captcha] 🛑 " .. reason .. " Auto-disconnect para iwas ban...")
+                    if correctButton == "KICK" then
+                        -- Kapag lumabas yung iniiwasang Black Image Hash
+                        warn("[Auto-Captcha] 🛑 Nadetect ang iniiwasang Captcha hash! Auto-disconnect para iwas ban...")
                         task.wait(waitTime)
-                        
-                        -- Kusang idi-disconnect ang laro
-                        LocalPlayer:Kick("[Auto-Captcha] " .. kickMessage)
+                        LocalPlayer:Kick("[Auto-Captcha] Specific hash detected. Ligtas na nag-disconnect ang account.")
+
+                    elseif correctButton == nil then
+                        -- BINAGO: Kapag bagong image (Hindi Kilala), pipindot ng 1 tapos wait 5s
+                        warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Pinipindot ang Button 1 para mag-refresh...")
+                        task.wait(waitTime)
+                        clickButton(1) 
+                        print("[Auto-Captcha] ⏳ Naghihintay ng 5 segundo para mag-load ang bagong Captcha...")
+                        task.wait(5)
+                        lastSolvedId = targetId
+
                     else
+                        -- Kapag kilala ang image (Normal solve)
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
                         task.wait(waitTime)
                         clickButton(correctButton)
