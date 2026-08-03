@@ -1,37 +1,42 @@
 -- ==========================================
--- 🎨 SCRIPT 1: ART CLASS - SMART UNIFIED BOT (ANTI-SPAM FIXED)
+-- ⏳ WAIT FOR GAME TO FULLY LOAD (ANTI-STUCK)
+-- ==========================================
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 9999)
+
+-- Global variable para ma-detect ng Drawing Script kung may Captcha
+getgenv().IsCaptchaActive = false
+
+-- ==========================================
+-- 🎨 SCRIPT 1: ART CLASS - SMART UNIFIED BOT (WITH CAPTCHA PAUSE)
 -- ==========================================
 if getgenv().Config.AutoArtClass then
     task.spawn(function()
         local WEBHOOK_URL = "https://discord.com/api/webhooks/1533145445805719785/BLmpU3ZkgeFx2MqBem3qG91orJCIsSWh_cPab8ePZnfvsYZV79V0Jy5hH8PuJAOpcO9m"
 
-        -- AUTOMATIKONG KUKUNIN ANG JOBID NG SERVER PARA SA FILE NAME
         local SERVER_ID = game.JobId
         if SERVER_ID == "" then SERVER_ID = "LocalServer" end
 
-        -- ==========================================
-        -- 📁 FOLDER CREATION & FILE PATH
-        -- ==========================================
         local FOLDER_NAME = "ARTCLASSJADEY"
         if makefolder and not isfolder(FOLDER_NAME) then
             makefolder(FOLDER_NAME)
         end
         local FILENAME = FOLDER_NAME .. "/ArtClass_" .. SERVER_ID .. ".txt"
 
-        -- SERVICES
-        local Players = game:GetService("Players")
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local VirtualInputManager = game:GetService("VirtualInputManager")
         local GuiService = game:GetService("GuiService")
         local HttpService = game:GetService("HttpService")
-        local TweenService = game:GetService("TweenService") -- Binalik
+        local TweenService = game:GetService("TweenService")
         local CoreGui = game:GetService("CoreGui")
 
-        -- ==========================================
-        -- 🎨 LOADING SCREEN (JADEY) - PERMANENT STAY
-        -- ==========================================
         local function createLoadingScreen()
-            local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or Players.LocalPlayer:WaitForChild("PlayerGui")
+            local parentGui = (pcall(function() return CoreGui.Name end) and CoreGui) or PlayerGui
             if parentGui:FindFirstChild("JadeyLoader") then
                 parentGui.JadeyLoader:Destroy()
             end
@@ -69,12 +74,8 @@ if getgenv().Config.AutoArtClass then
         end
         createLoadingScreen()
 
-        -- ==========================================
-        -- ⚙️ MAIN BOT SCRIPT VARIABLES
-        -- ==========================================
         local httpReq = (syn and syn.request) or (http and http.request) or http_request or fluxus or request
-        local LocalPlayer = Players.LocalPlayer
-        local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+        
         local artClassGui = PlayerGui:WaitForChild("ArtClass")
         local guessingGame = artClassGui:WaitForChild("GuessingGame")
 
@@ -91,9 +92,6 @@ if getgenv().Config.AutoArtClass then
 
         print("🤖 [SMART BOT] Ready! Naka-link sa server file: " .. FILENAME)
 
-        -- ==========================================
-        -- 🚀 HELPER FUNCTIONS
-        -- ==========================================
         local function cleanWord(str)
             local s = string.gsub(str, "Your Drawing Subject:", "")
             s = string.gsub(s, "[\n\r]", "") 
@@ -148,9 +146,14 @@ if getgenv().Config.AutoArtClass then
         end
 
         -- ==========================================
-        -- ✍️ HUMANIZED TEXT WRITING ENGINE (A-Z)
+        -- ✍️ HUMANIZED TEXT WRITING ENGINE (WITH CAPTCHA PAUSE)
         -- ==========================================
         local function drawLine(startX, startY, endX, endY)
+            -- Hihintayin munang matapos ang captcha bago gumalaw o mag-click
+            while getgenv().IsCaptchaActive do
+                task.wait(0.5)
+            end
+
             local distance = math.sqrt((endX - startX)^2 + (endY - startY)^2)
             local steps = math.clamp(math.floor(distance / 4), 6, 25)
 
@@ -160,6 +163,16 @@ if getgenv().Config.AutoArtClass then
             task.wait(math.random(1, 3) / 100)
 
             for i = 1, steps do
+                if getgenv().IsCaptchaActive then
+                    -- Kung lumitaw habang gumuguhit, bitawan muna ang mouse para ligtas
+                    VirtualInputManager:SendMouseButtonEvent(endX, endY, 0, false, game, 1)
+                    while getgenv().IsCaptchaActive do
+                        task.wait(0.5)
+                    end
+                    task.wait(0.5)
+                    break
+                end
+
                 local t = i / steps
                 local currentX = startX + ((endX - startX) * t)
                 local currentY = startY + ((endY - startY) * t)
@@ -219,6 +232,12 @@ if getgenv().Config.AutoArtClass then
 
                 for i = 1, #wordToDraw do
                     if not midGameArtist.Visible then break end
+                    
+                    -- Kung may captcha, hihinto muna ang pagta-type ng susunod na letra
+                    while getgenv().IsCaptchaActive do
+                        task.wait(0.5)
+                    end
+
                     local char = string.sub(wordToDraw, i, i)
                     local humanSize = baseSize + math.random(-5, 6)
                     local humanX = startX + ((i - 1) * baseSpacing) + math.random(-4, 7)
@@ -231,11 +250,9 @@ if getgenv().Config.AutoArtClass then
             end)
         end
 
-        -- ==========================================
-        -- 📖 TAGABASA LOGIC
-        -- ==========================================
         chooseAWord:GetPropertyChangedSignal("Visible"):Connect(function()
             if chooseAWord.Visible and option1Button then
+                while getgenv().IsCaptchaActive do task.wait(0.5) end
                 local thinkDelay = math.random(15, 40) / 10
                 print("🎨 [TAGABASA MODE] Turn ko mag-drawing! Pipili ng Option 1 in " .. thinkDelay .. "s")
                 task.wait(thinkDelay)
@@ -263,9 +280,6 @@ if getgenv().Config.AutoArtClass then
             end
         end)
 
-        -- ==========================================
-        -- 🤖 TAGASAGOT LOGIC 
-        -- ==========================================
         task.spawn(function()
             while task.wait(0.5) do
                 if midGameArtist.Visible then
@@ -303,6 +317,7 @@ if getgenv().Config.AutoArtClass then
                                 task.wait(totalDelay)
                                 
                                 if thisGuessId == currentGuessId then
+                                    while getgenv().IsCaptchaActive do task.wait(0.5) end
                                     if guessingGame.Visible and not midGameArtist.Visible then
                                         sendAnswerViaRemote(finalAnswer)
                                     else
@@ -319,22 +334,20 @@ if getgenv().Config.AutoArtClass then
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (SAFE MODE WITH BYPASS)
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (CONTROLS CAPTCHA STATE)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
-        local Players = game:GetService("Players")
         local HttpService = game:GetService("HttpService")
         local VirtualInputManager = game:GetService("VirtualInputManager")
         local GuiService = game:GetService("GuiService")
-        local TeleportService = game:GetService("TeleportService") -- DINAGDAG: Para sa server hop
-        local LocalPlayer = Players.LocalPlayer
+        local TeleportService = game:GetService("TeleportService")
 
         local MODE = "SUPER_SAFE" 
         local SETTINGS = {}
 
         if MODE == "SUPER_SAFE" then
-            SETTINGS.WATCH_INTERVAL = 1   
+            SETTINGS.WATCH_INTERVAL = 0.5   
             SETTINGS.GET_REACTION = function() return math.random(150, 350) / 100 end 
             SETTINGS.COOLDOWN_DELAY = 2.5   
         end
@@ -360,9 +373,8 @@ if getgenv().Config.AutoCaptcha then
             ["63cb01f205f7edfabac4e7ab1eb7dc08"] = "KICK" 
         }
 
-        -- DINAGDAG: Function para i-check kung stuck sa "Failed to load"
         local function checkFailedToLoad()
-            local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
+            local topCard = PlayerGui:FindFirstChild("CardCaptchaGame")
             if topCard then
                 for _, v in pairs(topCard:GetDescendants()) do
                     if v:IsA("TextLabel") and string.find(string.lower(v.Text), "failed to load") then
@@ -374,7 +386,7 @@ if getgenv().Config.AutoCaptcha then
         end
 
         local function getTargetId()
-            local topCard = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
+            local topCard = PlayerGui:FindFirstChild("CardCaptchaGame")
             if topCard and (topCard.Enabled or topCard.Enabled == nil) then
                 if topCard:FindFirstChild("CaptchaGame") and topCard.CaptchaGame.Top:FindFirstChild("Card") then
                     if topCard.CaptchaGame.Visible then
@@ -404,7 +416,7 @@ if getgenv().Config.AutoCaptcha then
         end
 
         local function clickButton(buttonNum)
-            local buttonPath = LocalPlayer.PlayerGui:FindFirstChild("CardCaptchaGame")
+            local buttonPath = PlayerGui:FindFirstChild("CardCaptchaGame")
             if buttonPath and buttonPath:FindFirstChild("CaptchaGame") then
                 local btn = buttonPath.CaptchaGame.Bottom.Buttons:FindFirstChild(tostring(buttonNum))
                 if btn then
@@ -426,8 +438,8 @@ if getgenv().Config.AutoCaptcha then
             while task.wait(SETTINGS.WATCH_INTERVAL) do
                 if isSolving then continue end
 
-                -- DINAGDAG: BYPASS kapag "Failed to load"
                 if checkFailedToLoad() then
+                    getgenv().IsCaptchaActive = true -- I-pause ang art class para ligtas
                     isSolving = true
                     local isVIP = game.PrivateServerId ~= ""
                     if isVIP then
@@ -446,6 +458,13 @@ if getgenv().Config.AutoCaptcha then
 
                 local targetId = getTargetId()
                 
+                -- Kapag nakakita ng Captcha, i-set agad sa TRUE para tumigil sa pag-draw ang Script 1
+                if targetId then
+                    getgenv().IsCaptchaActive = true
+                else
+                    getgenv().IsCaptchaActive = false
+                end
+                
                 if targetId and targetId ~= lastSolvedId then
                     isSolving = true
                     print("[Auto-Captcha] 🔍 Captcha found! ID: " .. targetId)
@@ -453,13 +472,11 @@ if getgenv().Config.AutoCaptcha then
                     local waitTime = SETTINGS.GET_REACTION()
 
                     if correctButton == "KICK" then
-                        -- Kapag lumabas yung iniiwasang Black Image Hash
                         warn("[Auto-Captcha] 🛑 Nadetect ang iniiwasang Captcha hash! Auto-disconnect para iwas ban...")
                         task.wait(waitTime)
                         LocalPlayer:Kick("[Auto-Captcha] Specific hash detected. Ligtas na nag-disconnect ang account.")
 
                     elseif correctButton == nil then
-                        -- BINAGO: Kapag bagong image (Hindi Kilala), pipindot ng 1 tapos wait 5s
                         warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Pinipindot ang Button 1 para mag-refresh...")
                         task.wait(waitTime)
                         clickButton(1) 
@@ -468,7 +485,6 @@ if getgenv().Config.AutoCaptcha then
                         lastSolvedId = targetId
 
                     else
-                        -- Kapag kilala ang image (Normal solve)
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
                         task.wait(waitTime)
                         clickButton(correctButton)
@@ -477,6 +493,9 @@ if getgenv().Config.AutoCaptcha then
 
                     task.wait(SETTINGS.COOLDOWN_DELAY)
                     isSolving = false
+                    
+                    -- Matapos masagutan, ibabalik natin sa false para magpatuloy na ulit sa pag-draw ang Art Class
+                    getgenv().IsCaptchaActive = false
                 end
                 if not targetId and lastSolvedId then lastSolvedId = nil end
             end
