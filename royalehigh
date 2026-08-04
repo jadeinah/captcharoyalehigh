@@ -349,7 +349,7 @@ if getgenv().Config.AutoArtClass then
 end
 
 -- ==============================================================
--- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (CONTROLS CAPTCHA STATE)
+-- 🛡️ SCRIPT 2: AUTO-CAPTCHA & ANTI-AFK (FIXED RETRY BUG)
 -- ==============================================================
 if getgenv().Config.AutoCaptcha then
     task.spawn(function()
@@ -453,7 +453,7 @@ if getgenv().Config.AutoCaptcha then
                 if isSolving then continue end
 
                 if checkFailedToLoad() then
-                    getgenv().IsCaptchaActive = true -- I-pause ang art class para ligtas
+                    getgenv().IsCaptchaActive = true
                     isSolving = true
                     warn("[Auto-Captcha] ⚠️ 'Failed to load' nadetect! Auto-disconnecting...")
                     task.wait(1)
@@ -465,7 +465,6 @@ if getgenv().Config.AutoCaptcha then
 
                 local targetId = getTargetId()
                 
-                -- Kapag nakakita ng Captcha, i-set agad sa TRUE para tumigil sa pag-draw ang Script 1
                 if targetId then
                     getgenv().IsCaptchaActive = true
                 else
@@ -487,9 +486,9 @@ if getgenv().Config.AutoCaptcha then
                         warn("[Auto-Captcha] 🛑 HINDI KILALA ANG IMAGE! Pinipindot ang Button 1 para mag-refresh...")
                         task.wait(waitTime)
                         clickButton(1) 
-                        print("[Auto-Captcha] ⏳ Naghihintay ng 5 segundo para mag-load ang bagong Captcha...")
-                        task.wait(5)
-                        lastSolvedId = targetId
+                        print("[Auto-Captcha] ⏳ Naghihintay ng 3 segundo para mag-load ang bagong Captcha...")
+                        task.wait(3)
+                        -- HINDI na tinatag ang lastSolvedId para patuloy nitong i-check kung nagbago na ang ID ng Captcha
 
                     else
                         print("[Auto-Captcha] ⏳ Acting human: Waiting " .. string.format("%.2f", waitTime) .. "s before clicking...")
@@ -501,8 +500,9 @@ if getgenv().Config.AutoCaptcha then
                     task.wait(SETTINGS.COOLDOWN_DELAY)
                     isSolving = false
                     
-                    -- Matapos masagutan, ibabalik natin sa false para magpatuloy na ulit sa pag-draw ang Art Class
-                    getgenv().IsCaptchaActive = false
+                    if not getTargetId() then
+                        getgenv().IsCaptchaActive = false
+                    end
                 end
                 if not targetId and lastSolvedId then lastSolvedId = nil end
             end
