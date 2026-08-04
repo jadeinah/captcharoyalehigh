@@ -71,6 +71,21 @@ if getgenv().Config.AutoArtClass then
             textLabel.TextTransparency = 0  
             textLabel.TextStrokeTransparency = 0
             textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+
+            -- 🔄 DITO YUNG BAGONG LOGIC PARA SA AUTO-HIDE/SHOW
+            task.spawn(function()
+                while task.wait(0.5) do
+                    -- Kung na-delete na yung screen accidentally, i-stop na ang loop
+                    if not loadingScreen or not loadingScreen.Parent then break end
+                    
+                    -- I-check kung active ang captcha mula sa Script 2
+                    if getgenv().IsCaptchaActive then
+                        loadingScreen.Enabled = false -- Itatago para makapindot ang bot
+                    else
+                        loadingScreen.Enabled = true  -- Ibabalik pag tapos na
+                    end
+                end
+            end)
         end
         createLoadingScreen()
 
